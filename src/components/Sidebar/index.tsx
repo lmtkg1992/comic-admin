@@ -45,7 +45,7 @@ const menuGroups = [
             />
           </svg>
         ),
-        label: "Dashboard",
+        label: "Content",
         route: "#",
         children: [
           { label: "Stories", route: "/stories" },
@@ -54,13 +54,13 @@ const menuGroups = [
           { label: "Authors", route: "/authors" }
         ],
       }
-     ],
+    ],
   }
 ];
 
 const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
   const pathname = usePathname();
-  const [pageName, setPageName] = useLocalStorage("selectedMenu", "dashboard");
+  const [pageName, setPageName] = useLocalStorage("selectedMenu", "content");
 
   return (
     <ClickOutside onClick={() => setSidebarOpen(false)}>
