@@ -47,6 +47,7 @@ const StoriesPage = () => {
           <table className="w-full table-auto">
             <thead className="bg-gray-2 dark:bg-meta-4">
               <tr>
+                <th className="px-4 py-4 text-left text-sm font-medium text-black dark:text-white">Story ID</th>
                 <th className="px-4 py-4 text-left text-sm font-medium text-black dark:text-white">Title</th>
                 <th className="px-4 py-4 text-left text-sm font-medium text-black dark:text-white">Active</th>
                 <th className="px-4 py-4 text-left text-sm font-medium text-black dark:text-white">Status</th>
@@ -64,6 +65,7 @@ const StoriesPage = () => {
                     key={story.story_id}
                     className="border-b border-stroke dark:border-strokedark hover:bg-gray-100 dark:hover:bg-meta-4"
                   >
+                    <td className="px-4 py-4 text-sm text-black dark:text-white">{story.story_id}</td>
                     <td className="px-4 py-4 text-sm text-black dark:text-white">{story.title}</td>
                     <td className="px-4 py-4 text-sm text-body dark:text-bodydark">{story.is_active ? "Yes" : "No"}</td>
                     <td className="px-4 py-4 text-sm text-body dark:text-bodydark">{story.status || "N/A"}</td>
@@ -76,7 +78,7 @@ const StoriesPage = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={8} className="px-4 py-6 text-center text-sm text-body dark:text-bodydark">
+                  <td colSpan={9} className="px-4 py-6 text-center text-sm text-body dark:text-bodydark">
                     No stories found.
                   </td>
                 </tr>
