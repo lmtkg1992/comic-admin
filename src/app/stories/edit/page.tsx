@@ -5,6 +5,8 @@ import { useSearchParams } from "next/navigation";
 import Select from "react-select";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import { fetchStoryDetail, fetchCategories, fetchAuthors, updateStory, uploadFile } from "@/utils/api";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const EditStoryPage = () => {
   const searchParams = useSearchParams();
@@ -24,11 +26,20 @@ const EditStoryPage = () => {
     source: "",
     translator: "",
     author_id: "",
-    path_image_obj: null
+    path_image_obj: null,
+    publish_date: new Date(),
+    updated_date: new Date(),
   });
 
   useEffect(() => {
     if (!storyId) return;
+
+    const adjustDateForTimezone = (dateString: string) => {
+      if (!dateString) return "";
+      const date = new Date(dateString);
+      date.setHours(date.getHours() + 7);
+      return date;
+    };
 
     const loadData = async () => {
       try {
@@ -52,6 +63,8 @@ const EditStoryPage = () => {
           ...formData,
           ...storyDetail,
           author_id: storyDetail?.author?.author_id || "",
+          publish_date: adjustDateForTimezone(storyDetail.publish_date),
+          updated_date: adjustDateForTimezone(storyDetail.updated_date),
         });
 
         setSelectedCategories(
@@ -99,18 +112,18 @@ const EditStoryPage = () => {
     }
   };
 
-
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     if (!storyId) return;
-  
+
     try {
       const categoryIds = selectedCategories.map((category: any) => category.value);
-  
+
       const allowedFields = [
         "title",
         "description",
         "publish_date",
+        "updated_date",
         "is_active",
         "status",
         "is_full",
@@ -120,26 +133,28 @@ const EditStoryPage = () => {
         "author_id",
         "path_image",
       ];
-  
+
       const cleanedData = Object.keys(formData)
         .filter((key) => allowedFields.includes(key))
         .reduce((obj: any, key) => {
           obj[key] = formData[key];
           return obj;
         }, {});
-  
+
       const payload = {
         ...cleanedData,
         categories: categoryIds,
         is_active: formData.is_active === "true",
         is_full: formData.is_full === "true",
         is_hot: formData.is_hot === "true",
+        publish_date: formData.publish_date.toISOString().replace("T", " ").slice(0, 19),
+        updated_date: formData.updated_date.toISOString().replace("T", " ").slice(0, 19),
       };
-  
+
       if (formData.path_image_obj?.file_id) {
         payload.path_image = formData.path_image_obj.file_id;
       }
-  
+
       await updateStory(storyId, payload);
       alert("Story updated successfully!");
     } catch (error) {
@@ -147,7 +162,6 @@ const EditStoryPage = () => {
       alert("Failed to update story.");
     }
   };
-  
 
   return (
     <DefaultLayout>
@@ -181,18 +195,6 @@ const EditStoryPage = () => {
               </select>
             </div>
 
-            {/* Description */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-2">Description</label>
-              <textarea
-                name="description"
-                value={formData.description}
-                onChange={handleInputChange}
-                className="w-full p-3 rounded-md border border-stroke dark:border-strokedark"
-                rows={5}
-              />
-            </div>
-
             {/* Status */}
             <div className="mb-4">
               <label className="block text-sm font-medium mb-2">Status</label>
@@ -205,6 +207,18 @@ const EditStoryPage = () => {
                 <option value="ongoing">Ongoing</option>
                 <option value="completed">Completed</option>
               </select>
+            </div>
+
+            {/* Description */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">Description</label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                className="w-full p-3 rounded-md border border-stroke dark:border-strokedark"
+                rows={5}
+              />
             </div>
 
             {/* Path Image */}
@@ -226,6 +240,61 @@ const EditStoryPage = () => {
                 className="block w-full text-sm text-gray-900 bg-gray-50 rounded border border-gray-300 cursor-pointer"
               />
               {uploading && <p className="text-sm text-gray-500 mt-2">Uploading...</p>}
+            </div>
+
+
+            {/* Categories */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">Categories</label>
+              <Select
+                isMulti
+                options={categories}
+                value={selectedCategories}
+                onChange={handleCategoryChange}
+                className="basic-multi-select"
+                classNamePrefix="select"
+              />
+            </div>
+
+            {/* Author */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">Author</label>
+              <select
+                name="author_id"
+                value={formData.author_id}
+                onChange={handleInputChange}
+                className="w-full p-3 rounded-md border border-stroke dark:border-strokedark"
+              >
+                {authors.map((author: any) => (
+                  <option key={author.author_id} value={author.author_id}>
+                    {author.title}
+                  </option>
+                ))}
+              </select>
+            </div>
+            
+            {/* Publish Date */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">Publish Date</label>
+              <DatePicker
+                selected={formData.publish_date}
+                onChange={(date: Date | null) => setFormData({ ...formData, publish_date: date })}                
+                showTimeSelect
+                dateFormat="yyyy-MM-dd HH:mm:ss"
+                className="w-full p-3 rounded-md border border-stroke dark:border-strokedark"
+              />
+            </div>
+
+            {/* Updated Date */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">Updated Date</label>
+              <DatePicker
+                selected={formData.updated_date}
+                onChange={(date: Date | null) => setFormData({ ...formData, updated_date: date })}
+                showTimeSelect
+                dateFormat="yyyy-MM-dd HH:mm:ss"
+                className="w-full p-3 rounded-md border border-stroke dark:border-strokedark"
+              />
             </div>
 
             {/* Is Full */}
@@ -280,35 +349,6 @@ const EditStoryPage = () => {
               />
             </div>
 
-            {/* Categories */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-2">Categories</label>
-              <Select
-                isMulti
-                options={categories}
-                value={selectedCategories}
-                onChange={handleCategoryChange}
-                className="basic-multi-select"
-                classNamePrefix="select"
-              />
-            </div>
-
-            {/* Author */}
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-2">Author</label>
-              <select
-                name="author_id"
-                value={formData.author_id}
-                onChange={handleInputChange}
-                className="w-full p-3 rounded-md border border-stroke dark:border-strokedark"
-              >
-                {authors.map((author: any) => (
-                  <option key={author.author_id} value={author.author_id}>
-                    {author.title}
-                  </option>
-                ))}
-              </select>
-            </div>
 
             <button
               type="submit"

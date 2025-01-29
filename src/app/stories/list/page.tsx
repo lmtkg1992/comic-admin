@@ -85,7 +85,7 @@ const StoriesPage = () => {
                         href={`/stories/edit?storyId=${story.story_id}`}
                         className="mr-2 px-3 py-1 bg-primary text-white rounded-md"
                       >
-                        View 6
+                        View
                       </Link>
                       <button
                         className="px-3 py-1 bg-red-500 text-white rounded-md"
