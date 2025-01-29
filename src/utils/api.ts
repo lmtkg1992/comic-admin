@@ -10,10 +10,10 @@ export const fetchStories = async (page = 1, size = 10, searchTerm = "") => {
       },
     });
 
-    const { list, totalCount } = response.data.data;
+    const { list, total } = response.data.data;
     return {
       stories: list,
-      totalPages: Math.ceil(totalCount / size),
+      totalPages: Math.ceil(total / size),
     };
   } catch (error) {
     console.error("Error fetching stories:", error);
@@ -24,10 +24,10 @@ export const fetchStories = async (page = 1, size = 10, searchTerm = "") => {
 export const fetchChapters = async (storyId: string, page = 1, size = 10) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/beapi/chapters/list/${storyId}?page=${page}&size=${size}`);
-    const { list, totalCount } = response.data.data;
+    const { list, total } = response.data.data;
     return {
       chapters: list,
-      totalPages: Math.ceil(totalCount / size),
+      totalPages: Math.ceil(total / size),
     };
   } catch (error) {
     console.error("Error fetching chapters:", error);
@@ -38,10 +38,10 @@ export const fetchChapters = async (storyId: string, page = 1, size = 10) => {
 export const fetchCategories = async (page = 1, size = 10) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/beapi/categories/list?page=${page}&size=${size}`);
-    const { list, totalCount } = response.data.data;
+    const { list, total } = response.data.data;
     return {
       categories: list,
-      totalPages: Math.ceil(totalCount / size),
+      totalPages: Math.ceil(total / size),
     };
   } catch (error) {
     console.error("Error fetching categories:", error);
@@ -52,13 +52,45 @@ export const fetchCategories = async (page = 1, size = 10) => {
 export const fetchAuthors = async (page = 1, size = 10) => {
   try {
     const response = await axios.get(`${API_BASE_URL}/beapi/authors/list?page=${page}&size=${size}`);
-    const { list, totalCount } = response.data.data;
+    const { list, total } = response.data.data;
     return {
       authors: list,
-      totalPages: Math.ceil(totalCount / size),
+      totalPages: Math.ceil(total / size),
     };
   } catch (error) {
     console.error("Error fetching authors:", error);
+    throw error;
+  }
+};
+
+export const fetchStoryDetail = async (storyId: string) => {
+  const response = await axios.get(`${API_BASE_URL}/beapi/stories/detail/${storyId}`);
+  return response.data;
+};
+
+export const updateStory = async (storyId: string, payload: any) => {
+  const response = await axios.put(`${API_BASE_URL}/beapi/stories/update/${storyId}`, payload);
+  return response.data;
+};
+
+export const uploadFile = async (file: File, entityType: string) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const response = await axios.post(
+      `${API_BASE_URL}/beapi/file_media/upload?entity_type=${entityType}`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error("Error uploading file:", error);
     throw error;
   }
 };

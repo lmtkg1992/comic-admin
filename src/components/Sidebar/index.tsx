@@ -48,7 +48,7 @@ const menuGroups = [
         label: "Stories",
         route: "#",
         children: [
-          { label: "List Stories", route: "/stories" },
+          { label: "List Stories", route: "/stories/list" },
           { label: "Create Stories", route: "/stories/create" },
         ],
       },

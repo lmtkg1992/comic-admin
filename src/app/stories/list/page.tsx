@@ -1,16 +1,17 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Link from "next/link";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Pagination from "@/components/Pagination";
-import { fetchStories } from "@/utils/api"; // Import from utils
+import { fetchStories } from "@/utils/api";
 
 const StoriesPage = () => {
   const [stories, setStories] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const storiesPerPage = 10; // Corresponds to API size
+  const storiesPerPage = 10;
 
   useEffect(() => {
     const getStories = async () => {
@@ -25,6 +26,10 @@ const StoriesPage = () => {
 
     getStories();
   }, [currentPage, searchTerm]);
+
+  const handleDelete = (storyId: string) => {
+    console.log("Delete story:", storyId);
+  };
 
   return (
     <DefaultLayout>
@@ -56,6 +61,7 @@ const StoriesPage = () => {
                 <th className="px-4 py-4 text-left text-sm font-medium text-black dark:text-white">Full</th>
                 <th className="px-4 py-4 text-left text-sm font-medium text-black dark:text-white">Hot</th>
                 <th className="px-4 py-4 text-left text-sm font-medium text-black dark:text-white">Total Chapters</th>
+                <th className="px-4 py-4 text-left text-sm font-medium text-black dark:text-white">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -74,11 +80,25 @@ const StoriesPage = () => {
                     <td className="px-4 py-4 text-sm text-body dark:text-bodydark">{story.is_full ? "Yes" : "No"}</td>
                     <td className="px-4 py-4 text-sm text-body dark:text-bodydark">{story.is_hot ? "Yes" : "No"}</td>
                     <td className="px-4 py-4 text-sm text-body dark:text-bodydark">{story.total_chapters}</td>
+                    <td className="px-4 py-4 text-sm text-body dark:text-bodydark">
+                      <Link
+                        href={`/stories/edit?storyId=${story.story_id}`}
+                        className="mr-2 px-3 py-1 bg-primary text-white rounded-md"
+                      >
+                        View 6
+                      </Link>
+                      <button
+                        className="px-3 py-1 bg-red-500 text-white rounded-md"
+                        onClick={() => handleDelete(story.story_id)}
+                      >
+                        Delete
+                      </button>
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={9} className="px-4 py-6 text-center text-sm text-body dark:text-bodydark">
+                  <td colSpan={10} className="px-4 py-6 text-center text-sm text-body dark:text-bodydark">
                     No stories found.
                   </td>
                 </tr>
