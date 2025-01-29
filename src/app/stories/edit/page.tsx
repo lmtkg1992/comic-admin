@@ -7,6 +7,11 @@ import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import { fetchStoryDetail, fetchCategories, fetchAuthors, updateStory, uploadFile } from "@/utils/api";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import dynamic from "next/dynamic";
+import "react-quill/dist/quill.snow.css"; // Quill styling
+
+// Dynamic import to prevent SSR issues
+const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
 
 const EditStoryPage = () => {
   const searchParams = useSearchParams();
@@ -209,15 +214,13 @@ const EditStoryPage = () => {
               </select>
             </div>
 
-            {/* Description */}
+            {/* Description (Quill.js) */}
             <div className="mb-4">
               <label className="block text-sm font-medium mb-2">Description</label>
-              <textarea
-                name="description"
+              <ReactQuill
                 value={formData.description}
-                onChange={handleInputChange}
-                className="w-full p-3 rounded-md border border-stroke dark:border-strokedark"
-                rows={5}
+                onChange={(content) => setFormData({ ...formData, description: content })}
+                theme="snow"
               />
             </div>
 
