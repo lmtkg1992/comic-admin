@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Pagination from "@/components/Pagination";
-import { fetchStories } from "@/utils/api";
+import { deleteStory, fetchStories } from "@/utils/api";
 
 const StoriesPage = () => {
   const [stories, setStories] = useState([]);
@@ -27,8 +27,17 @@ const StoriesPage = () => {
     getStories();
   }, [currentPage, searchTerm]);
 
-  const handleDelete = (storyId: string) => {
-    console.log("Delete story:", storyId);
+  const handleDelete = async (storyId: string) => {
+    if (confirm("Are you sure you want to delete this story?")) {
+      try {
+        await deleteStory(storyId);
+        setStories(stories.filter((story: any) => story.story_id !== storyId));
+        alert("Story deleted successfully.");
+      } catch (error) {
+        console.error("Error deleting story:", error);
+        alert("Failed to delete story.");
+      }
+    }
   };
 
   return (

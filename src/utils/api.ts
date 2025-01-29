@@ -65,7 +65,7 @@ export const fetchAuthors = async (page = 1, size = 10) => {
 
 export const fetchStoryDetail = async (storyId: string) => {
   const response = await axios.get(`${API_BASE_URL}/beapi/stories/detail/${storyId}`);
-  return response.data;
+  return response.data.data;
 };
 
 export const updateStory = async (storyId: string, payload: any) => {
@@ -83,6 +83,16 @@ export const createStory = async (payload: any) => {
     return response.data.data.story_id;
   } catch (error) {
     console.error("Error creating story:", error);
+    throw error;
+  }
+};
+
+export const deleteStory = async (storyId: string) => {
+  try {
+    const response = await axios.delete(`${API_BASE_URL}/beapi/stories/delete/${storyId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting story:", error);
     throw error;
   }
 };
