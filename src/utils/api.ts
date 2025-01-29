@@ -73,6 +73,20 @@ export const updateStory = async (storyId: string, payload: any) => {
   return response.data;
 };
 
+export const createStory = async (payload: any) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/beapi/stories/create`, payload, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    return response.data.data.story_id;
+  } catch (error) {
+    console.error("Error creating story:", error);
+    throw error;
+  }
+};
+
 export const uploadFile = async (file: File, entityType: string) => {
   const formData = new FormData();
   formData.append("file", file);
