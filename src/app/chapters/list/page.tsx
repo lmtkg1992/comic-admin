@@ -1,19 +1,22 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import DefaultLayout from "@/components/Layouts/DefaultLayout";
 import Pagination from "@/components/Pagination";
-import { fetchChapters } from "@/utils/api";
+import { fetchChapters, deleteChapter } from "@/utils/api";
 
 const ChaptersPage = () => {
   const [chapters, setChapters] = useState([]);
   const [totalPages, setTotalPages] = useState(1);
   const [searchStoryId, setSearchStoryId] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const chaptersPerPage = 10; // Corresponds to API size
+  const chaptersPerPage = 10;
+
+  const router = useRouter();
 
   const handleSearch = () => {
-    setCurrentPage(1); // Reset to first page on new search
+    setCurrentPage(1);
     fetchChaptersData(searchStoryId, 1, chaptersPerPage);
   };
 
@@ -27,10 +30,28 @@ const ChaptersPage = () => {
     }
   };
 
+  const handleView = (chapterId: string) => {
+    router.push(`/chapters/edit?chapterId=${chapterId}`);
+  };
+
+  const handleDelete = async (chapterId: string) => {
+    if (confirm("Are you sure you want to delete this chapter?")) {
+      try {
+        await deleteChapter(chapterId);
+        setChapters((prevChapters) =>
+          prevChapters.filter((chapter: any) => chapter.chapter_id !== chapterId)
+        );
+      } catch (error) {
+        console.error("Error deleting chapter:", error);
+      }
+    }
+  };
+
   useEffect(() => {
     if (searchStoryId) {
       fetchChaptersData(searchStoryId, currentPage, chaptersPerPage);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage]);
 
   return (
@@ -58,13 +79,14 @@ const ChaptersPage = () => {
         {/* Chapters Table */}
         <div className="rounded-lg border border-stroke bg-white dark:border-strokedark dark:bg-boxdark shadow-lg">
           <table className="w-full table-auto">
-            <thead className="bg-gray-2 dark:bg-meta-4">
+            <thead className="bg-gray-200 dark:bg-gray-700">
               <tr>
                 <th className="px-4 py-4 text-left text-sm font-medium text-black dark:text-white">Title</th>
                 <th className="px-4 py-4 text-left text-sm font-medium text-black dark:text-white">URL Key</th>
                 <th className="px-4 py-4 text-left text-sm font-medium text-black dark:text-white">Order</th>
                 <th className="px-4 py-4 text-left text-sm font-medium text-black dark:text-white">Status</th>
                 <th className="px-4 py-4 text-left text-sm font-medium text-black dark:text-white">Created Date</th>
+                <th className="px-4 py-4 text-left text-sm font-medium text-black dark:text-white">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -72,7 +94,7 @@ const ChaptersPage = () => {
                 chapters.map((chapter: any) => (
                   <tr
                     key={chapter.chapter_id}
-                    className="border-b border-stroke dark:border-strokedark hover:bg-gray-100 dark:hover:bg-meta-4"
+                    className="border-b border-stroke dark:border-strokedark hover:bg-gray-100 dark:hover:bg-gray-600"
                   >
                     <td className="px-4 py-4 text-sm text-black dark:text-white">{chapter.title}</td>
                     <td className="px-4 py-4 text-sm text-body dark:text-bodydark">{chapter.url_key}</td>
@@ -81,11 +103,25 @@ const ChaptersPage = () => {
                     <td className="px-4 py-4 text-sm text-body dark:text-bodydark">
                       {new Date(chapter.created_date).toLocaleDateString()}
                     </td>
+                    <td className="px-4 py-4 text-sm text-body dark:text-bodydark">
+                      <button
+                        className="mr-2 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white rounded-md"
+                        onClick={() => handleView(chapter.chapter_id)}
+                      >
+                        View
+                      </button>
+                      <button
+                        className="px-3 py-1 bg-red-500 hover:bg-red-600 text-white rounded-md"
+                        onClick={() => handleDelete(chapter.chapter_id)}
+                      >
+                        Delete
+                      </button>
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5} className="px-4 py-6 text-center text-sm text-body dark:text-bodydark">
+                  <td colSpan={6} className="px-4 py-6 text-center text-sm text-body dark:text-bodydark">
                     No chapters found.
                   </td>
                 </tr>
@@ -95,7 +131,11 @@ const ChaptersPage = () => {
         </div>
 
         {/* Pagination */}
-        <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={(page) => setCurrentPage(page)} />
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(page) => setCurrentPage(page)}
+        />
       </div>
     </DefaultLayout>
   );

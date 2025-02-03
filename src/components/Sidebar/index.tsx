@@ -83,7 +83,7 @@ const menuGroups = [
         label: "Chapters",
         route: "#",
         children: [
-          { label: "List Chapters", route: "/chapters" },
+          { label: "List Chapters", route: "/chapters/list" },
           { label: "Create Chapters", route: "/chapters/create" },
         ],
       },
