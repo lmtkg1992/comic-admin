@@ -118,7 +118,7 @@ const menuGroups = [
         label: "Categories",
         route: "#",
         children: [
-          { label: "List Categories", route: "/categories" },
+          { label: "List Categories", route: "/categories/list" },
           { label: "Create Categories", route: "/categories/create" },
         ],
       },
@@ -153,7 +153,7 @@ const menuGroups = [
         label: "Authors",
         route: "#",
         children: [
-          { label: "List Authors", route: "/authors" },
+          { label: "List Authors", route: "/authors/list" },
           { label: "Create Authors", route: "/authors/create" },
         ],
       },
