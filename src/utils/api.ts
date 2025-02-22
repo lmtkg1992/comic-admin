@@ -2,11 +2,48 @@ import axios from "axios";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_ADMIN_API_BASE_URL; // Centralized API base URL
 
+// Tạo axios instance
+const axiosInstance = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+axiosInstance.interceptors.request.use(
+  (config) => {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("token");
+      if (token) {
+        config.headers["Authorization"] = `Bearer ${token}`;
+      }
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor: if 401 Unauthorized, remove token from localStorage
+axiosInstance.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.code && error.code === "ERR_NETWORK") {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("token");
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
+
 // Stories
 
 export const fetchStories = async (page = 1, size = 10, searchTerm = "") => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/beapi/stories/list?page=${page}&size=${size}`, {
+    const response = await axiosInstance.get(`/beapi/stories/list?page=${page}&size=${size}`, {
       params: {
         search: searchTerm || undefined,
       },
@@ -24,22 +61,18 @@ export const fetchStories = async (page = 1, size = 10, searchTerm = "") => {
 };
 
 export const fetchStoryDetail = async (storyId: string) => {
-  const response = await axios.get(`${API_BASE_URL}/beapi/stories/detail/${storyId}`);
+  const response = await axiosInstance.get(`/beapi/stories/detail/${storyId}`);
   return response.data.data;
 };
 
 export const updateStory = async (storyId: string, payload: any) => {
-  const response = await axios.put(`${API_BASE_URL}/beapi/stories/update/${storyId}`, payload);
+  const response = await axiosInstance.put(`/beapi/stories/update/${storyId}`, payload);
   return response.data;
 };
 
 export const createStory = async (payload: any) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/beapi/stories/create`, payload, {
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await axiosInstance.post(`/beapi/stories/create`, payload);
     return response.data.data.story_id;
   } catch (error) {
     console.error("Error creating story:", error);
@@ -49,7 +82,7 @@ export const createStory = async (payload: any) => {
 
 export const deleteStory = async (storyId: string) => {
   try {
-    const response = await axios.delete(`${API_BASE_URL}/beapi/stories/delete/${storyId}`);
+    const response = await axiosInstance.delete(`/beapi/stories/delete/${storyId}`);
     return response.data;
   } catch (error) {
     console.error("Error deleting story:", error);
@@ -61,7 +94,7 @@ export const deleteStory = async (storyId: string) => {
 
 export const fetchChapters = async (storyId: string, page = 1, size = 10) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/beapi/chapters/list/${storyId}?page=${page}&size=${size}`);
+    const response = await axiosInstance.get(`/beapi/chapters/list/${storyId}?page=${page}&size=${size}`);
     const { list, total } = response.data.data;
     return {
       chapters: list,
@@ -74,23 +107,23 @@ export const fetchChapters = async (storyId: string, page = 1, size = 10) => {
 };
 
 export const fetchChapterDetail = async (chapterId: string) => {
-  const response = await axios.get(`${API_BASE_URL}/beapi/chapters/detail/${chapterId}`);
+  const response = await axiosInstance.get(`/beapi/chapters/detail/${chapterId}`);
   return response.data.data;
 };
 
 export const updateChapter = async (chapterId: string, payload: any) => {
-  const response = await axios.put(`${API_BASE_URL}/beapi/chapters/update/${chapterId}`, payload);
+  const response = await axiosInstance.put(`/beapi/chapters/update/${chapterId}`, payload);
   return response.data;
 };
 
 export const deleteChapter = async (chapterId: string) => {
-  const response = await axios.delete(`${API_BASE_URL}/beapi/chapters/delete/${chapterId}`);
+  const response = await axiosInstance.delete(`/beapi/chapters/delete/${chapterId}`);
   return response.data;
 };
 
 export const createChapter = async (payload: any) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/beapi/chapters/create`, payload);
+    const response = await axiosInstance.post(`/beapi/chapters/create`, payload);
     return response.data.data.chapter_id;
   } catch (error) {
     console.error("Error creating chapter:", error);
@@ -102,7 +135,7 @@ export const createChapter = async (payload: any) => {
 
 export const fetchCategories = async (page = 1, size = 10) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/beapi/categories/list?page=${page}&size=${size}`);
+    const response = await axiosInstance.get(`/beapi/categories/list?page=${page}&size=${size}`);
     const { list, total } = response.data.data;
     return {
       categories: list,
@@ -115,23 +148,23 @@ export const fetchCategories = async (page = 1, size = 10) => {
 };
 
 export const fetchCategoryDetail = async (categoryId: string) => {
-  const response = await axios.get(`${API_BASE_URL}/beapi/categories/detail/${categoryId}`);
+  const response = await axiosInstance.get(`/beapi/categories/detail/${categoryId}`);
   return response.data.data;
 };
 
 export const updateCategory = async (categoryId: string, payload: any) => {
-  const response = await axios.put(`${API_BASE_URL}/beapi/categories/update/${categoryId}`, payload);
+  const response = await axiosInstance.put(`/beapi/categories/update/${categoryId}`, payload);
   return response.data;
 };
 
 export const deleteCategory = async (categoryId: string) => {
-  const response = await axios.delete(`${API_BASE_URL}/beapi/categories/delete/${categoryId}`);
+  const response = await axiosInstance.delete(`/beapi/categories/delete/${categoryId}`);
   return response.data;
 };
 
 export const createCategory = async (payload: any) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/beapi/categories/create`, payload);
+    const response = await axiosInstance.post(`/beapi/categories/create`, payload);
     return response.data.data.category_id;
   } catch (error) {
     console.error("Error creating category:", error);
@@ -143,7 +176,7 @@ export const createCategory = async (payload: any) => {
 
 export const fetchAuthors = async (page = 1, size = 10) => {
   try {
-    const response = await axios.get(`${API_BASE_URL}/beapi/authors/list?page=${page}&size=${size}`);
+    const response = await axiosInstance.get(`/beapi/authors/list?page=${page}&size=${size}`);
     const { list, total } = response.data.data;
     return {
       authors: list,
@@ -156,26 +189,46 @@ export const fetchAuthors = async (page = 1, size = 10) => {
 };
 
 export const fetchAuthorDetail = async (authorId: string) => {
-  const response = await axios.get(`${API_BASE_URL}/beapi/authors/detail/${authorId}`);
+  const response = await axiosInstance.get(`/beapi/authors/detail/${authorId}`);
   return response.data.data;
 };
 
 export const updateAuthor = async (authorId: string, payload: any) => {
-  const response = await axios.put(`${API_BASE_URL}/beapi/authors/update/${authorId}`, payload);
+  const response = await axiosInstance.put(`/beapi/authors/update/${authorId}`, payload);
   return response.data;
 };
 
 export const deleteAuthor = async (authorId: string) => {
-  const response = await axios.delete(`${API_BASE_URL}/beapi/authors/delete/${authorId}`);
+  const response = await axiosInstance.delete(`/beapi/authors/delete/${authorId}`);
   return response.data;
 };
 
 export const createAuthor = async (payload: any) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/beapi/authors/create`, payload);
+    const response = await axiosInstance.post(`/beapi/authors/create`, payload);
     return response.data.data.author_id;
   } catch (error) {
     console.error("Error creating author:", error);
+    throw error;
+  }
+};
+
+export const adminLogin = async (username: string, password: string) => {
+  try {
+    const response = await axios.post(`${API_BASE_URL}/beapi/admin_auth/login`, { username, password });
+    return response.data;
+  } catch (error) {
+    console.error("Error logging in:", error);
+    throw error;
+  }
+};
+
+export const adminMe = async () => {
+  try {
+    const response = await axiosInstance.get("/beapi/admin/me");
+    return response.data.data;
+  } catch (error) {
+    console.error("Error fetching admin me:", error);
     throw error;
   }
 };
@@ -187,8 +240,8 @@ export const uploadFile = async (file: File, entityType: string) => {
   formData.append("file", file);
 
   try {
-    const response = await axios.post(
-      `${API_BASE_URL}/beapi/file_media/upload?entity_type=${entityType}`,
+    const response = await axiosInstance.post(
+      `/beapi/file_media/upload?entity_type=${entityType}`,
       formData,
       {
         headers: {

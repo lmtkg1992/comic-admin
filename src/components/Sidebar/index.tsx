@@ -49,7 +49,7 @@ const menuGroups = [
         route: "#",
         children: [
           { label: "List Stories", route: "/stories/list" },
-          { label: "Create Stories", route: "/stories/create" },
+          { label: "Create Stories", route: "/stories/create" }
         ],
       },
       {
@@ -181,6 +181,9 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen }: SidebarProps) => {
               src={"/images/logo/logo_comic.png"}
               alt="Logo"
               priority
+              onClick={() => {
+                window.location.assign(window.location.origin);
+              }}
             />
           </Link>
 
